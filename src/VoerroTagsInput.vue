@@ -174,6 +174,10 @@ export default {
 
         // Emit an event
         this.$emit('initialized');
+        
+        this.$root.$on('change-input', (input) => {
+            this.input = input;
+        });
     },
 
     watch: {
