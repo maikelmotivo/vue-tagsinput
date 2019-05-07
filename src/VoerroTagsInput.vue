@@ -22,7 +22,7 @@
                 @keyup="searchTag"
                 @keyup.esc="ignoreSearchResults"
                 @focus="onFocus"
-                @blur="hideTypeahead"
+                @blur="onBlur"
                 @value="tags">
 
             <input type="hidden" v-if="elementId"
@@ -318,6 +318,11 @@ export default {
                     this.oldInput = this.input;
                 }
             }
+        },
+        
+        onBlur() {
+          this.$emit('tags-input-blur');
+          this.hideTypeahead();
         },
 
         onFocus() {
