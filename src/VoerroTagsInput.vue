@@ -178,6 +178,10 @@ export default {
         this.$root.$on('change-input', (input) => {
             this.input = input;
         });
+
+        this.$root.$on('tag-from-input', () => {
+            this.tagFromInput();
+        });
     },
 
     watch: {
@@ -321,7 +325,7 @@ export default {
         },
         
         onBlur() {
-          this.$emit('tags-input-blur');
+          this.$parent.$emit('tags-input-blur');
           this.hideTypeahead();
         },
 
