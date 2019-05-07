@@ -179,7 +179,10 @@ export default {
             this.input = input;
         });
 
-        this.$root.$on('tag-from-input', () => {
+        this.$root.$on('tag-from-input', (searchResults) => {
+            if (!searchResults) {
+                this.searchResults = [];
+            }
             this.tagFromInput();
         });
     },
