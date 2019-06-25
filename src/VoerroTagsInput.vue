@@ -7,13 +7,15 @@
             >
                 <span v-html="badge"></span>
 
-                <i href="#" class="tags-input-remove" @click.prevent="removeTag(index)"></i>
+                <i href="#" class="tags-input-remove" @click.prevent="removeTag(index)" v-if="!locked"></i>
+                <i class="material-icons locked-icon" v-else>lock</i>
             </span>
 
             <input type="text"
                 ref="taginput"
-                :placeholder="placeholder"
+                :placeholder="getPlaceholder()"
                 v-model="input"
+                :readonly="locked"
                 @keydown.enter.prevent="tagFromInput"
                 @keydown.8="removeLastTag"
                 @keydown.down="nextSearchResult"
@@ -108,6 +110,11 @@ export default {
             default: 'Add a tag'
         },
 
+        lockedPlaceholder: {
+            type: String,
+            default: 'Tags are locked'
+        },
+
         limit: {
             type: Number,
             default: 0
@@ -151,6 +158,11 @@ export default {
         sortSearchResults: {
             type: Boolean,
             default: true
+        },
+
+        locked: {
+            type: Boolean,
+            default: false,
         }
     },
 
@@ -206,6 +218,9 @@ export default {
     },
 
     methods: {
+        getPlaceholder() {
+            return this.locked ? this.lockedPlaceholder : this.placeholder;
+        },
         escapeRegExp(string) {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         },
