@@ -274,8 +274,6 @@ export default {
                 private: 0,
             }
 
-            console.log('tagfromsearch', tag);
-
             this.addTag(tag.slug, tag.text);
         },
 
