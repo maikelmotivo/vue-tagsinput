@@ -8,7 +8,6 @@
                 <span v-html="badge"></span>
 
                 <i href="#" class="tags-input-remove" @click.prevent="removeTag(index)" v-if="!locked"></i>
-                <i class="material-icons locked-icon" v-else>lock</i>
             </span>
 
             <input type="text"
@@ -38,7 +37,7 @@
             <p v-if="typeaheadStyle === 'badges'" :class="`typeahead-${typeaheadStyle}`">
                 <span v-for="(tag, index) in searchResults"
                     :key="index"
-                    v-html="tag.text"
+                    v-html="tag.text + tag.lock"
                     @mouseover="searchSelection = index"
                     @mousedown.prevent="tagFromSearchOnClick(tag)"
                     class="tags-input-badge"
@@ -163,7 +162,12 @@ export default {
         locked: {
             type: Boolean,
             default: false,
-        }
+        },
+
+        followingTags: {
+            type: Array,
+            default: function() { return [] },
+        },
     },
 
     data() {
@@ -246,6 +250,10 @@ export default {
 
                     slug = existingTag ? slug : text;
                     text = existingTag ? existingTag : text;
+                    let tag = existingTag ? existingTag : {
+                        name: slug,
+                        private: 0,
+                    }
 
                     this.addTag(slug, text);
                 }
@@ -261,11 +269,29 @@ export default {
             this.input = '';
             this.oldInput = '';
 
+            let t = {
+                name: tag.slug,
+                private: 0,
+            }
+
+            console.log('tagfromsearch', tag);
+
             this.addTag(tag.slug, tag.text);
         },
 
         makeSlug(value) {
             return value.toLowerCase().replace(/\s/g, '-');
+        },
+
+        hasPrivateTag() {
+            let self = this;
+            return this.tags.map(function (slug) {
+                if (typeof self.existingTags[slug] !== 'undefined' && self.existingTags[slug].private === 1) {
+                    return 1;
+                }
+
+                return 0;
+            }).includes(1);
         },
 
         addTag(slug, text) {
@@ -274,9 +300,23 @@ export default {
                 return false;
             }
 
+            let isPrivate = typeof this.existingTags[slug] !== 'undefined' && this.existingTags[slug].private === 1;
+
+            if (isPrivate && ! this.existingTags[slug].following) {
+                this.$emit('tag-inaccessible', slug);
+
+                return;
+            }
+
+            if ((isPrivate && this.tags.length > 0) || this.hasPrivateTag()) {
+                this.$emit('max-one-private-tag', slug);
+
+                return;
+            }
+
             // Attach the tag if it hasn't been attached yet
             if (!this.tagSelected(slug)) {
-                this.tagBadges.push(text.replace(/\s/g, '&nbsp;'));
+                this.tagBadges.push(text);
                 this.tags.push(slug);
             }
 
@@ -311,10 +351,10 @@ export default {
 
                     if ((input.length && input.length >= this.typeaheadActivationThreshold) || this.typeaheadActivationThreshold == 0) {
                         for (let slug in this.existingTags) {
-                            let text = this.existingTags[slug].toLowerCase();
+                            let text = this.existingTags[slug].text.toLowerCase();
 
                             if (text.search(this.escapeRegExp(input.toLowerCase())) > -1 && ! this.tagSelected(slug)) {
-                                this.searchResults.push({ slug, text: this.existingTags[slug] });
+                                this.searchResults.push({ slug, text: this.existingTags[slug].text + this.existingTags[slug].lock, private: this.existingTags[slug].private });
                             }
                         }
 
@@ -401,7 +441,7 @@ export default {
 
                 for (let slug of tags) {
                     let existingTag = this.existingTags[slug];
-                    let text = existingTag ? existingTag : slug;
+                    let text = existingTag ? existingTag.text : slug;
 
                     this.addTag(slug, text);
                 }
