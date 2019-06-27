@@ -250,10 +250,6 @@ export default {
 
                     slug = existingTag ? slug : text;
                     text = existingTag ? existingTag : text;
-                    let tag = existingTag ? existingTag : {
-                        name: slug,
-                        private: 0,
-                    }
 
                     this.addTag(slug, text);
                 }
@@ -269,11 +265,6 @@ export default {
             this.input = '';
             this.oldInput = '';
 
-            let t = {
-                name: tag.slug,
-                private: 0,
-            }
-
             this.addTag(tag.slug, tag.text);
         },
 
@@ -284,7 +275,7 @@ export default {
         hasPrivateTag() {
             let self = this;
             return this.tags.map(function (slug) {
-                if (typeof self.existingTags[slug] !== 'undefined' && self.existingTags[slug].private === 1) {
+                if (typeof self.existingTags[slug] !== 'undefined' && self.existingTags[slug].private) {
                     return 1;
                 }
 
@@ -298,7 +289,7 @@ export default {
                 return false;
             }
 
-            let isPrivate = typeof this.existingTags[slug] !== 'undefined' && this.existingTags[slug].private === 1;
+            let isPrivate = typeof this.existingTags[slug] !== 'undefined' && this.existingTags[slug].private;
 
             if (isPrivate && ! this.existingTags[slug].following) {
                 this.$emit('tag-inaccessible', slug);
