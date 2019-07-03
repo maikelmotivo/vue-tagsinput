@@ -106,12 +106,12 @@ export default {
 
         placeholder: {
             type: String,
-            default: 'Add a tag'
+            default: 'Voeg een tag toe'
         },
 
         lockedPlaceholder: {
             type: String,
-            default: 'Tags are locked'
+            default: 'Bericht is alleen zichtbaar voor volgers'
         },
 
         limit: {
