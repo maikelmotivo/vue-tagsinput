@@ -190,7 +190,7 @@ export default {
 
         // Emit an event
         this.$emit('initialized');
-        
+
         this.$root.$on('change-input', (input) => {
             this.input = input;
         });
@@ -249,7 +249,7 @@ export default {
                     let existingTag = this.existingTags[slug];
 
                     slug = existingTag ? slug : text;
-                    text = existingTag ? existingTag : text;
+                    text = existingTag ? existingTag.text + existingTag.lock : text;
 
                     this.addTag(slug, text);
                 }
@@ -288,6 +288,8 @@ export default {
             if (this.limit > 0 && this.tags.length >= this.limit) {
                 return false;
             }
+
+            slug = slug.toLowerCase();
 
             let isPrivate = typeof this.existingTags[slug] !== 'undefined' && this.existingTags[slug].private;
 
@@ -370,7 +372,7 @@ export default {
                 }
             }
         },
-        
+
         onBlur() {
           this.$parent.$emit('tags-input-blur');
           this.hideTypeahead();
@@ -429,8 +431,9 @@ export default {
                 this.clearTags();
 
                 for (let slug of tags) {
+                    slug = slug.toLowerCase();
                     let existingTag = this.existingTags[slug];
-                    let text = existingTag ? existingTag.text : slug;
+                    let text = existingTag ? existingTag.text + existingTag.lock : slug;
 
                     this.addTag(slug, text);
                 }
